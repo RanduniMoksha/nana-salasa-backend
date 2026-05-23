@@ -10,7 +10,8 @@ from app.models.student_profile import StudentProfile
 from app.models.degree_program import DegreeProgram
 from app.models.cutoff_mark import CutoffMark
 from app.models.university import University
-from app.models.faculty import Faculty
+from app.models.degree_streams import DegreeStream
+
 
 router = APIRouter()
 
@@ -53,51 +54,66 @@ def get_recommendations(
     student_zscore = student_profile.z_score
 
     # Find all degree programs for student's stream
-    degrees = db.query(DegreeProgram).filter(
-        DegreeProgram.stream_id == student_stream
-    ).all()
+
+    recommendations_query = (
+
+    db.query(
+
+            DegreeProgram.degree_name,
+
+            University.university_name,
+
+            CutoffMark.cutoff_zscore
+
+        )
+
+        .join(
+            DegreeStream,
+            DegreeProgram.degree_id == DegreeStream.degree_id
+        )
+
+        .join(
+            CutoffMark,
+            DegreeProgram.degree_id == CutoffMark.degree_id
+        )
+
+        .join(
+            University,
+            DegreeProgram.university_id == University.university_id
+        )
+
+        .filter(
+            DegreeStream.stream_id == student_stream
+        )
+
+        .filter(
+            CutoffMark.district_id == student_district
+        )
+
+        .filter(
+            CutoffMark.cutoff_zscore <= student_zscore
+        )
+
+        .order_by(
+            CutoffMark.cutoff_zscore.desc()
+        )
+
+        .all()
+    )
 
     recommendations = []
 
-    # Loop through all degrees
-    for degree in degrees:
+    for item in recommendations_query:
 
-        # Find cutoff mark
-        cutoff = db.query(CutoffMark).filter(
+        recommendations.append({
 
-            CutoffMark.degree_id == degree.degree_id,
+        "degree_name": item.degree_name,
 
-            CutoffMark.district_id == student_district
+        "university": item.university_name,
 
-        ).first()
+        "cutoff_zscore": float(item.cutoff_zscore)
 
-        # Skip if no cutoff data
-        if cutoff is None:
-            continue
-
-        # Compare z-score
-        if student_zscore >= cutoff.cutoff_zscore:
-
-            # Get university details
-            university = db.query(University).filter(
-                University.university_id == degree.university_id
-            ).first()
-
-            faculty = db.query(Faculty).filter(
-                Faculty.faculty_id == degree.faculty_id
-            ).first()
-
-            recommendations.append({
-
-                "degree_name": degree.degree_name,
-
-                "faculty": faculty.faculty_name,
-
-                "university": university.university_name,
-
-                "cutoff_zscore": float(cutoff.cutoff_zscore)
-
-            })
+    })
 
     return {
 

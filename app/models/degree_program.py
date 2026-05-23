@@ -7,23 +7,23 @@ class DegreeProgram(Base):
 
     degree_id = Column(Integer, primary_key=True, index=True)
 
+    uni_code = Column(String(10), nullable=False)
+
     degree_name = Column(String(255), nullable=False)
+
+    short_name = Column(String(50), nullable=True)
 
     university_id = Column(
         Integer,
         ForeignKey("universities.university_id")
     )
 
-    faculty_id = Column(
-        Integer,
-        ForeignKey("faculties.faculty_id")
-    )
-
-    stream_id = Column(
-        Integer,
-        ForeignKey("streams.stream_id")
-    )
-
     duration_years = Column(Integer, nullable=False)
 
+    intake = Column(Integer, nullable=False)
+
+    medium = Column(String(50), nullable=False)
+
     description = Column(String(1000), nullable=True)
+
+    requires_aptitude_test = Column(Integer, nullable=False)  # 0 or 1

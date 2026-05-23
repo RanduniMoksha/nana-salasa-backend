@@ -18,6 +18,7 @@ from app.models.cutoff_mark import CutoffMark
 from app.models.university import University
 from app.models.student_result import StudentResult
 from app.models.faculty import Faculty
+from app.models.degree_streams import DegreeStream
 
 
 app = FastAPI()
