@@ -26,4 +26,10 @@ class DegreeProgram(Base):
 
     description = Column(String(1000), nullable=True)
 
+    faculty_id = Column(
+    Integer,
+    ForeignKey("faculties.faculty_id"),
+    nullable=False
+)
+
     requires_aptitude_test = Column(Integer, nullable=False)  # 0 or 1

@@ -9,8 +9,4 @@ class Faculty(Base):
 
     faculty_name = Column(String(255), nullable=False)
 
-    university_id = Column(
-        Integer,
-        ForeignKey("universities.university_id")
-    )
    
