@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import auth_router
+from app.routers import auth_router, search_router
 
 from app.routers import student_router
 
@@ -19,6 +19,7 @@ from app.models.university import University
 from app.models.student_result import StudentResult
 from app.models.faculty import Faculty
 from app.models.degree_streams import DegreeStream
+from app.models.university_faculty import UniversityFaculty
 
 
 app = FastAPI()
@@ -27,6 +28,7 @@ app.include_router(auth_router.router)
 app.include_router(student_router.router)
 app.include_router(student_result.router)
 app.include_router(recommendation.router)
+app.include_router(search_router.router)
 
 @app.get("/")
 def home():
