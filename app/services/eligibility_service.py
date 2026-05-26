@@ -2,6 +2,7 @@ from app.models.degree_requirement import DegreeRequirement
 from app.models.requirement_group import RequirementGroup
 from app.models.group_subject import GroupSubject
 from app.models.student_result import StudentResult
+from app.models.degree_program import DegreeProgram
 
 
 GRADE_RANK = {
@@ -89,3 +90,60 @@ def check_subject_requirements(
             return False
 
     return True
+
+
+def find_degrees_by_subjects(db, subject_ids):
+    """
+    Find degree programs whose requirement templates mention ALL subject_ids passed.
+
+    Simple algorithm:
+    - For each degree, load its DegreeRequirement to get the template_id
+    - Collect all subject_ids referenced by GroupSubject for that template
+    - If the provided subject_ids are a subset of that set, the degree is considered
+      compatible and is returned.
+
+    This is intentionally simple and easy to understand. For large datasets you
+    may want to convert this to a single SQL query with joins and GROUP BY.
+
+    Args:
+        db: SQLAlchemy session
+        subject_ids: iterable of subject id integers
+
+    Returns:
+        list of `DegreeProgram` objects that match
+    """
+
+    # normalize input to a set for fast membership tests
+    required_set = set(int(s) for s in subject_ids if s is not None)
+
+    if not required_set:
+        return []
+
+    degrees = db.query(DegreeProgram).all()
+    matches = []
+
+    for degree in degrees:
+        # load degree requirement to get the template that groups reference
+        degree_requirement = db.query(DegreeRequirement).filter(
+            DegreeRequirement.degree_id == degree.degree_id
+        ).first()
+
+        if not degree_requirement:
+            # if no requirement template, we cannot match subjects -- skip
+            continue
+
+        # collect all subject ids referenced by groups for this template
+        group_subjects = db.query(GroupSubject).join(
+            RequirementGroup,
+            GroupSubject.group_id == RequirementGroup.group_id
+        ).filter(
+            RequirementGroup.template_id == degree_requirement.template_id
+        ).all()
+
+        template_subject_set = set(gs.subject_id for gs in group_subjects)
+
+        # if all provided subjects are present in the template, it's a match
+        if required_set.issubset(template_subject_set):
+            matches.append(degree)
+
+    return matches

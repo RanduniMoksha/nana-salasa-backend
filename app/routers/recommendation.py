@@ -1,12 +1,9 @@
 from fastapi import APIRouter, Depends
-
 from app.auth.oauth2 import verify_token
-
 from app.database import SessionLocal
 
 from app.models.user import User
 from app.models.student_profile import StudentProfile
-
 from app.models.degree_program import DegreeProgram
 from app.models.cutoff_mark import CutoffMark
 from app.models.university import University
@@ -17,7 +14,6 @@ from app.services.eligibility_service import (
 )
 
 router = APIRouter()
-
 
 @router.get("/student/recommendations")
 def get_recommendations(

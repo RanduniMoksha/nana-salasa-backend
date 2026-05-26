@@ -1,11 +1,8 @@
 from fastapi import FastAPI
 
 from app.routers import auth_router, search_router
-
 from app.routers import student_router
-
 from app.routers import student_result
-
 from app.routers import recommendation
 
 from app.models.user import User
@@ -21,7 +18,6 @@ from app.models.faculty import Faculty
 from app.models.degree_streams import DegreeStream
 from app.models.university_faculty import UniversityFaculty
 
-
 app = FastAPI()
 
 app.include_router(auth_router.router)
@@ -32,5 +28,4 @@ app.include_router(search_router.router)
 
 @app.get("/")
 def home():
-
     return {"message": "Backend is running"}

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class StudentResultCreate(BaseModel):
@@ -20,3 +21,11 @@ class StudentResultResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class StudentResultUpdate(BaseModel):
+
+    # Allow partial updates: student can update subject or grade (or both)
+    subject_id: Optional[int] = None
+
+    grade: Optional[str] = None

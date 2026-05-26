@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class StudentProfileCreate(BaseModel):
@@ -28,3 +29,16 @@ class StudentProfileResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class StudentProfileUpdate(BaseModel):
+
+    # All fields are optional for partial updates. Provide only the fields
+    # the student wants to change.
+    stream_id: Optional[int] = None
+
+    district_id: Optional[int] = None
+
+    z_score: Optional[float] = None
+
+    al_year: Optional[int] = None
